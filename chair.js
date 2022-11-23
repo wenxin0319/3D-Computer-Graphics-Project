@@ -133,10 +133,8 @@ class Base_Scene extends Scene {
             'ball_1': new defs.Regular_2D_Polygon(1, 15),
             'ball_2': new defs.Subdivision_Sphere(4),
             'ball_3': new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(1),
-            'alien': new Shape_From_File("assets/alien.obj"),
-            'capsul': new Shape_From_File("assets/capsul.obj"),
-            'robot': new Shape_From_File("assets/robot.obj"),
-            'spacecar': new Shape_From_File("assets/spacecar.obj"),
+            'earth': new Shape_From_File("assets/Earth.obj"),
+
         };
         // *** Materials
         const textured = new defs.Textured_Phong(1);
@@ -153,32 +151,19 @@ class Base_Scene extends Scene {
                 {ambient: 0.8, diffusivity: 0.3, color: hex_color("#FFB6C1")}),
             lamp_main:new Material(new defs.Phong_Shader(),
                 {ambient: 0.8, diffusivity: 0.3, color: hex_color("#666666")}),
-            loc1: new Material(new Texture_Rotate(), {
-                color: hex_color("#6B8E23"),
-                ambient: 1, diffusivity: 0.1,
-                texture: new Texture("assets/loc_05.png", "NEAREST")
-            }),
-            alien_texture: new Material(textured, {
-                ambient: 0.1, diffusivity: 0.5,
-                texture: new Texture("assets/alien.png"),
-                color: color(0, 0, 0, 1)
-            }),
-            capsul_texture: new Material(textured, {
-                ambient: 0.1, diffusivity: 0.5,
-                texture: new Texture("assets/capsul.png"),
-                color: color(0, 0, 0, 1)
-            }),
-           robot_texture: new Material(textured, {
-                ambient: 0.1, diffusivity: 0.5,
-                texture: new Texture("assets/robot.png"),
-                color: color(0, 0, 0, 1)
-            }),
-            spacecar_texture: new Material(textured, {
-                ambient: 0.1, diffusivity: 0.5,
-                texture: new Texture("assets/spacecar.png"),
-                color: color(0, 0, 0, 1)
-            })
 
+            screen_texture: new Material(new Texture_Rotate(), {
+                color: hex_color("#6B8E23"),
+                ambient: 1, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/loc1.png", "NEAREST")
+            }),
+
+
+             earth_texture: new Material(textured, {
+                 ambient: 1, diffusivity: 0.5,
+                 texture: new Texture("assets/tex/Earth_2k.png"),
+                 color: color(0, 0, 0, 1)
+             }),
         };
     }
 
@@ -243,25 +228,11 @@ export class chair_scene extends Base_Scene {
         let back_transform = chair_model_transform.times(Mat4.translation(0, -4.1, 0)).times(Mat4.translation(0,2,-1))
             .times(Mat4.scale(1.2,1.2,0.25));
 
-        //draw alien
-        let alien_transform = Mat4.identity();
-        alien_transform = alien_transform.times(Mat4.translation(8, -3, -5));
-        this.shapes.alien.draw(context, program_state, alien_transform, this.materials.alien_texture);
 
-        //draw alien
-        let capsul_transform = Mat4.identity();
-        capsul_transform = capsul_transform.times(Mat4.translation(8, -7, -5));
-        this.shapes.capsul.draw(context, program_state, capsul_transform, this.materials.capsul_texture);
+        let base_transform = Mat4.identity();
+        base_transform = base_transform.times(Mat4.translation(8, -3, -5));
+        this.shapes.earth.draw(context, program_state, base_transform, this.materials.earth_texture);
 
-        //draw alien
-        let robot_transform = Mat4.identity();
-        robot_transform = robot_transform.times(Mat4.translation(6, -3, -5));
-        this.shapes.robot.draw(context, program_state, robot_transform, this.materials.robot_texture);
-
-        //draw alien
-        let spacecar_transform = Mat4.identity();
-        spacecar_transform = spacecar_transform.times(Mat4.translation(4, -3, -5));
-        this.shapes.spacecar.draw(context, program_state, spacecar_transform, this.materials.spacecar_texture);
 
         this.shapes.cube.draw(context, program_state, leg_transform_1, this.materials.wood);
         this.shapes.cube.draw(context, program_state, leg_transform_2, this.materials.wood);
@@ -325,6 +296,7 @@ export class chair_scene extends Base_Scene {
 
         this.shapes.cube.draw(context, program_state, roof_model_transform, this.materials.wall);
 
+
         // draws the floor
         let floor_model_transform = Mat4.identity();
         floor_model_transform = floor_model_transform.times(Mat4.translation(11, -8, 0)).times(Mat4.rotation(Math.PI/2, 1, 0, 0)).times(Mat4.scale(27, 16, 0.1))
@@ -360,8 +332,8 @@ export class chair_scene extends Base_Scene {
         //draw the screen
         let screen_transform = Mat4.identity();
         screen_transform = screen_transform.times(Mat4.translation(-14.5, 1, 2)).times(Mat4.rotation(Math.PI/2, 0, 1, 0)).times(Mat4.scale(8, 5, 0.1))
-       // this.shapes.cube.draw(context, program_state, screen_transform, this.materials.loc1);
         this.shapes.cube.draw(context, program_state, screen_transform, this.materials.screen);
+        //this.shapes.cube.draw(context, program_state, screen_transform, this.materials.screen_texture);
 
 
         //draw the control panel
@@ -382,7 +354,7 @@ export class chair_scene extends Base_Scene {
         // }
         // let r = Math.random() * 100;
         // if (0 <r <= 25)
-       // this.shapes.cube.draw(context, program_state, screen_transform, this.materials.loc1);
+        //     this.shapes.cube.draw(context, program_state, screen_transform, this.materials.loc1);
         // else if (25 <r <= 50)
         //     this.shapes.cube.draw(context, program_state, screen_transform, this.materials.loc2);
         // else if (50 <r <= 75)
@@ -392,40 +364,6 @@ export class chair_scene extends Base_Scene {
 
     }
 }
-
-class Texture_Scroll_X extends Textured_Phong {
-    // TODO:  Modify the shader below (right now it's just the same fragment shader as Textured_Phong) for requirement #6.
-    fragment_glsl_code() {
-        return this.shared_glsl_code() + `
-            varying vec2 f_tex_coord;
-            uniform sampler2D texture;
-            uniform float animation_time;
-            
-            void main(){
-                mat4 tx = mat4(vec4(-1., 0., 0., 0.), vec4(0., 1., 0., 0.), vec4(0., 0., 0., 0.), vec4(mod(2.0 * animation_time, 60.0) , 0., 0., 0.)); 
-                vec4 scroll_vec = vec4(f_tex_coord, 0., 0.);
-                scroll_vec =  tx * (scroll_vec + vec4(1., 1., 0., 1.)); 
-                vec2 scaled_scroll_vec = vec2(scroll_vec.x * 2., scroll_vec.y * 2.);
-                vec4 tex_color = texture2D(texture, scaled_scroll_vec);
-                float x = mod(scaled_scroll_vec.x, 1.0);
-                float y = mod(scaled_scroll_vec.y, 1.0);
-                if (((x >= 0.15 && x <= 0.25) && (y >= 0.15 && y <= 0.85)) || // left edge
-                    ((x >= 0.15 && x <= 0.85) && (y >= 0.15 && y <= 0.25)) || // bottom edge
-                    ((x >= 0.15 && x <= 0.85) && (y >= 0.75 && y <= 0.85)) || // top edge
-                    ((x >= 0.75 && x <= 0.85) && (y >= 0.15 && y <= 0.85)))  {
-                    tex_color = vec4(0, 0, 0, 1.0);
-                }
-                // Sample the texture image in the correct place:
-                if( tex_color.w < .01 ) discard;
-                                                                         // Compute an initial (ambient) color:
-                gl_FragColor = vec4( ( tex_color.xyz + shape_color.xyz ) * ambient, shape_color.w * tex_color.w ); 
-                                                                         // Compute the final color with contributions from lights:
-                gl_FragColor.xyz += phong_model_lights( normalize( N ), vertex_worldspace );
-        } `;
-    }
-}
-
-
 class Texture_Rotate extends Textured_Phong {
     // TODO:  Modify the shader below (right now it's just the same fragment shader as Textured_Phong) for requirement #7.
     fragment_glsl_code() {
@@ -434,10 +372,9 @@ class Texture_Rotate extends Textured_Phong {
             uniform sampler2D texture;
             uniform float animation_time;
             void main(){
-                // calculate rotate matrix  
-                vec2 new_tex = f_tex_coord + vec2(-0.5, -0.5);
-                float angle = 0.5 * -3.14159 * mod(animation_time, 4.0);
+                float angle = 0.5 * -3.1415926 * mod(animation_time, 4.0);
                 mat2 rot = mat2(cos(angle), sin(angle), -sin(angle), cos(angle));
+                vec2 new_tex = f_tex_coord + vec2(-0.5, -0.5);
                 new_tex = rot * new_tex + vec2(0.5, 0.5);
                 vec4 tex_color = texture2D(texture, new_tex); 
                 // black out square
@@ -458,3 +395,4 @@ class Texture_Rotate extends Textured_Phong {
         } `;
     }
 }
+
