@@ -9,7 +9,8 @@ import {Text_Demo} from "./examples/text-demo.js"
 import {Transforms_Sandbox} from "./examples/transforms-sandbox.js"
 import {Roaming} from "./Roaming.js";
 import {space_scene} from "./space_scene.js";
-import {chair_scene} from "./chair.js";
+import {spaceship_scene} from "./spaceship.js";
+import {Shadow_Demo} from "./examples/shadow-demo.js";
 
 // Pull these names into this module's scope for convenience:
 const {
@@ -38,14 +39,15 @@ Object.assign(defs,
     {Transforms_Sandbox},
     {Roaming},
     {space_scene},
-    {chair_scene},
+    {spaceship_scene},
+    {Shadow_Demo}
 );
 
 // ******************** End extra step
 
 // (Can define Main_Scene's class here)
 
-const Main_Scene = space_scene; //space_scene;
-const Additional_Scenes = [Roaming, chair_scene];
+const Main_Scene = spaceship_scene;
+const Additional_Scenes = [Roaming, space_scene];
 
 export {Main_Scene, Additional_Scenes, Canvas_Widget, Code_Widget, Text_Widget, defs}

@@ -48,7 +48,8 @@ export class Text_Line extends Shape {                           // **Text_Line*
 export class Text_Demo extends Scene {             // **Text_Demo** is a scene with a cube, for demonstrating the Text_Line utility Shape.
     constructor() {
         super()
-        this.shapes = {cube: new defs.Cube(), text: new Text_Line(35)};
+        this.shapes = {cube: new defs.Cube(),
+            text: new Text_Line(35)};
         // Don't create any DOM elements to control this scene:
         this.widget_options = {make_controls: false};
 
