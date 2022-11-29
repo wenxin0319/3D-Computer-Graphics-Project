@@ -151,54 +151,64 @@ export class spaceship_scene extends Scene {
         this.materials = {
             wood: new Material(new Shadow_Textured_Phong_Shader(1),
                 {ambient: 0.3, diffusivity: .6, color: color(0.71, 0.39, 0.11, 1), smoothness: 60,
-                color_texture: new Texture("assets/Wood-Pattern.png"),
+                color_texture: new Texture("assets/Wood-Pattern.jpg"),
                 light_depth_texture:null}),
-            //wood_texture: new Material(new defs.Fake_Bump_Map(1), {
-                //color: color(0.71, 0.39, 0.11, 1),
-                //ambient: ,
-                //texture: new Texture("assets/Wood-Pattern.png")}),
             wood2: new Material(new Shadow_Textured_Phong_Shader(1),
-                {ambient: 0.8, diffusivity: .6, color: hex_color("#09131a"), smoothness: 60}), 
+                {ambient: 0.8, diffusivity: .6, color: hex_color("#424242"), smoothness: 60}), 
             couch: new Material(new Shadow_Textured_Phong_Shader(1),
                 {ambient: .3, diffusivity: .5, color: color(115/255, 147/255, 179/255, 1), smoothness: 60}),
+            // wall: new Material(new Shadow_Textured_Phong_Shader(1),
+            //     {ambient: 0.3, diffusivity: 0.3, color: color(188/255, 186/255, 181/255, 1), smoothness: 60}),
             wall: new Material(new Shadow_Textured_Phong_Shader(1),
-                {ambient: 0.3, diffusivity: 0.3, color: color(188/255, 186/255, 181/255, 1), smoothness: 60}),
-            wall2: new Material(new Shadow_Textured_Phong_Shader(1), {
+                {ambient: 0.5, diffusivity: 0.3, color: hex_color("#f2f2f2"), smoothness: 60}),
+            wall_sun: new Material(new Shadow_Textured_Phong_Shader(1), {
                 color: color(.5, .5, .5, 1),
                 ambient: .4, diffusivity: .5, specular: .5,
-                color_texture: new Texture("assets/Sun_2k.png"),
+                color_texture: new Texture("assets/Sun_2k.jpg"),
                 light_depth_texture: null
             }),
+            wall_saturn: new Material(new Shadow_Textured_Phong_Shader(1), {
+                color: color(.5, .5, .5, 1),
+                ambient: .4, diffusivity: .5, specular: .5,
+                color_texture: new Texture("assets/Saturn_2k.jpg"),
+                light_depth_texture: null
+            }),
+            wall_neptune: new Material(new Shadow_Textured_Phong_Shader(1), {
+                color: color(.5, .5, .5, 1),
+                ambient: .4, diffusivity: .5, specular: .5,
+                color_texture: new Texture("assets/Neptune_2k.jpg"),
+                light_depth_texture: null
+            }),
+            control: new Material(new Color_Phong_Shader(1),
+                {ambient: 0.5, diffusivity: 0.3, specular: 0.5, color: hex_color("#424242"), smoothness: 30}),
             screen: new Material(new Shadow_Textured_Phong_Shader(1),
                 {ambient: 0.3, diffusivity: 0.3, color: color(107/255, 142/255, 35/255, 1), smoothness: 60}),
             lamp_head:new Material(new Shadow_Textured_Phong_Shader(1),
                 {ambient: 1.0, diffusivity: 0.3, color: color(255/255, 182/255, 193/255, 1), smoothness: 60}),
             lamp_main:new Material(new Shadow_Textured_Phong_Shader(1),
                 {ambient: 0.5, diffusivity: 0.3, color: color(102/255, 102/255, 102/255, 1), smoothness: 60}),
-            text_image: new Material(new Shadow_Textured_Phong_Shader(1),
-                {ambient: 0.5, diffusivity: 0, specular: 0, texture: new Texture("assets/text.png")}),
             screen_texture1: new Material(new Shadow_Textured_Phong_Shader(1), {
                 color: color(0.4, 0.4, 0.4, 1),
                 ambient: 0.7,
-                color_texture: new Texture("assets/loc1.png"),
+                color_texture: new Texture("assets/loc1.jpg"),
                 light_depth_texture: null
             }),
             screen_texture2: new Material(new Shadow_Textured_Phong_Shader(1), {
                 color: color(0.4, 0.4, 0.4, 1),
                 ambient:0.7,
-                color_texture: new Texture("assets/loc2.png"),
+                color_texture: new Texture("assets/loc2.jpg"),
                 light_depth_texture: null
             }),
             screen_texture3: new Material(new Shadow_Textured_Phong_Shader(1), {
                 color: color(0.4, 0.4, 0.4, 1),
                 ambient:0.7,
-                color_texture: new Texture("assets/loc3.png"),
+                color_texture: new Texture("assets/loc3.jpg"),
                 light_depth_texture: null
             }),
             screen_texture4: new Material(new Shadow_Textured_Phong_Shader(1), {
                 color: color(0.4, 0.4, 0.4, 1),
                 ambient:0.7,
-                color_texture: new Texture("assets/loc4.png"),
+                color_texture: new Texture("assets/loc4.jpg"),
                 light_depth_texture: null
             }),
             tow_tex1: new Material(new Shadow_Textured_Phong_Shader(1), {
@@ -284,6 +294,8 @@ export class spaceship_scene extends Scene {
             color(1, 204/255, 51/255),color(1, 204/255, 0, 1)];
         this.lamp_colors = [color(1, 1, 1, 1),color(1, 1, 204/255, 1),color(1, 204/255, 153/255, 1),color(1, 204/255, 0, 1)];
 
+
+
         // To make sure texture initialization only does once
         this.init_ok = false;
         
@@ -295,7 +307,7 @@ export class spaceship_scene extends Scene {
         this.d_y_1 = 1;
         this.d_z_1 = 1;
 
-        this.last_transform_1 = Mat4.identity();
+        this.last_transform_1 = Mat4.identity().times(Mat4.translation(-3, -1, 0));
 
         this.v_x_2 = .1;
         this.v_y_2 = .2;
@@ -305,10 +317,14 @@ export class spaceship_scene extends Scene {
         this.d_y_2 = -1;
         this.d_z_2 = -1;
 
-        this.last_transform_2 = Mat4.identity().times(Mat4.translation(-3, -1, 0));
+        this.last_transform_2 = Mat4.identity().times(Mat4.translation(-5, -3, 0));
 
         this.m_1 = 0.01
         this.m_2 = 0.1
+
+        this.sun_texture = true;
+        this.saturn_texture = false;
+        this.neptune_texture = false;
     }
 
     make_control_panel() {
@@ -333,6 +349,24 @@ export class spaceship_scene extends Scene {
             this.v_y_2 += .1
             this.v_x_2 += .1;
         });
+
+        this.key_triggered_button("Change theme: sun", ["s"], function () {
+            this.sun_texture = true;
+            this.saturn_texture = false;
+            this.neptune_texture = false;
+        });
+        this.new_line();
+        this.key_triggered_button("Change theme: saturn", ["a"], function () {
+            this.saturn_texture = true;
+            this.sun_texture = false;
+            this.neptune_texture = false;
+        });
+        this.new_line();
+        this.key_triggered_button("Change theme: neptune", ["n"], function () {
+            this.neptune_texture = true;
+            this.sun_texture = false;
+            this.saturn_texture = false;
+        });
     }
 
     texture_buffer_init(gl) {
@@ -343,6 +377,7 @@ export class spaceship_scene extends Scene {
         //this.stars.light_depth_texture = this.light_depth_texture
         this.shadow.light_depth_texture = this.light_depth_texture
         this.materials.wood.light_depth_texture = this.light_depth_texture
+        this.materials.wood2.light_depth_texture = this.light_depth_texture
         this.materials.couch.light_depth_texture = this.light_depth_texture
         this.materials.wall.light_depth_texture = this.light_depth_texture
         this.materials.screen.light_depth_texture = this.light_depth_texture
@@ -425,7 +460,7 @@ export class spaceship_scene extends Scene {
         //draw chair
         let chair_model_transform = Mat4.identity();
         //move chair to designated location
-        chair_model_transform = chair_model_transform.times(Mat4.translation(4, -3, -5))
+        chair_model_transform = chair_model_transform.times(Mat4.translation(9, -3, -5))
             .times(Mat4.rotation(Math.PI*3/2,0, 1, 0));
 
         //draw chair legs
@@ -446,26 +481,26 @@ export class spaceship_scene extends Scene {
         let back_transform = chair_model_transform.times(Mat4.translation(-2, -4.1, -2)).times(Mat4.translation(1, 2, 0)).times(Mat4.rotation(- Math.PI / 2, 0, 1, 0))
             .times(Mat4.scale(1.2,1.2,0.25));
 
-        this.shapes.cube.draw(context, program_state, leg_transform_1, shadow_pass? this.materials.wood2: this.pure);
-        this.shapes.cube.draw(context, program_state, leg_transform_2, shadow_pass? this.materials.wood2: this.pure); //this.shadow:this.materials.wood
-        this.shapes.cube.draw(context, program_state, leg_transform_3, shadow_pass? this.materials.wood2: this.pure);
-        this.shapes.cube.draw(context, program_state, leg_transform_4, shadow_pass? this.materials.wood2: this.pure);
-        this.shapes.cube.draw(context, program_state, seat_transform, shadow_pass? this.materials.wood2: this.pure);
-        this.shapes.cube.draw(context, program_state, back_transform, shadow_pass? this.materials.wood2: this.pure);
+        this.shapes.cube.draw(context, program_state, leg_transform_1, shadow_pass? this.materials.wood: this.pure);
+        this.shapes.cube.draw(context, program_state, leg_transform_2, shadow_pass? this.materials.wood: this.pure); //this.shadow:this.materials.wood
+        this.shapes.cube.draw(context, program_state, leg_transform_3, shadow_pass? this.materials.wood: this.pure);
+        this.shapes.cube.draw(context, program_state, leg_transform_4, shadow_pass? this.materials.wood: this.pure);
+        this.shapes.cube.draw(context, program_state, seat_transform, shadow_pass? this.materials.wood: this.pure);
+        this.shapes.cube.draw(context, program_state, back_transform, shadow_pass? this.materials.wood: this.pure);
 
-        this.shapes.cube.draw(context, program_state, Mat4.translation(5, 0, 0).times(leg_transform_1), shadow_pass? this.materials.wood2: this.pure);
-        this.shapes.cube.draw(context, program_state,  Mat4.translation(5, 0, 0).times(leg_transform_2), shadow_pass? this.materials.wood2: this.pure); //this.shadow:this.materials.wood
-        this.shapes.cube.draw(context, program_state,  Mat4.translation(5, 0, 0).times(leg_transform_3), shadow_pass? this.materials.wood2: this.pure);
-        this.shapes.cube.draw(context, program_state,  Mat4.translation(5, 0, 0).times(leg_transform_4), shadow_pass? this.materials.wood2: this.pure);
-        this.shapes.cube.draw(context, program_state,  Mat4.translation(5, 0, 0).times(seat_transform), shadow_pass? this.materials.wood2: this.pure);
-        this.shapes.cube.draw(context, program_state,  Mat4.translation(5, 0, 0).times(back_transform), shadow_pass? this.materials.wood2: this.pure);
+        this.shapes.cube.draw(context, program_state, Mat4.translation(5, 0, 0).times(leg_transform_1), shadow_pass? this.materials.wood: this.pure);
+        this.shapes.cube.draw(context, program_state,  Mat4.translation(5, 0, 0).times(leg_transform_2), shadow_pass? this.materials.wood: this.pure); //this.shadow:this.materials.wood
+        this.shapes.cube.draw(context, program_state,  Mat4.translation(5, 0, 0).times(leg_transform_3), shadow_pass? this.materials.wood: this.pure);
+        this.shapes.cube.draw(context, program_state,  Mat4.translation(5, 0, 0).times(leg_transform_4), shadow_pass? this.materials.wood: this.pure);
+        this.shapes.cube.draw(context, program_state,  Mat4.translation(5, 0, 0).times(seat_transform), shadow_pass? this.materials.wood: this.pure);
+        this.shapes.cube.draw(context, program_state,  Mat4.translation(5, 0, 0).times(back_transform), shadow_pass? this.materials.wood: this.pure);
 
         let people1_transform = Mat4.identity();
         people1_transform = people1_transform.times(Mat4.translation(30, -4, 6)).times(Mat4.rotation(3 *Math.PI/2, 0, 1, 0)).times(Mat4.scale(1.5,1.5,1.5)); // woman in red dress and grey heels chatting
         this.shapes.peo1.draw(context, program_state, people1_transform, shadow_pass? this.materials.peo_tex1: this.pure);
 
         let people2_transform = Mat4.identity();
-        people2_transform = people2_transform.times(Mat4.translation(-2, -5, -2)).times(Mat4.rotation(2 * Math.PI/2, 0, 1, 0)).times(Mat4.scale(1.5,1.5,1.5)); // kid holding ball
+        people2_transform = people2_transform.times(Mat4.translation(25, -5, -2)).times(Mat4.rotation(2 * Math.PI/2, 0, 1, 0)).times(Mat4.scale(1.5,1.5,1.5)); // kid holding ball
         this.shapes.peo2.draw(context, program_state, people2_transform, shadow_pass? this.materials.peo_tex2: this.pure);
 
         let people3_transform = Mat4.identity();
@@ -481,11 +516,11 @@ export class spaceship_scene extends Scene {
         this.shapes.peo5.draw(context, program_state, people5_transform, shadow_pass? this.materials.peo_tex5: this.pure);
 
         let people6_transform = Mat4.identity();
-        people6_transform = people6_transform.times(Mat4.translation(2, -4, -2)).times(Mat4.rotation(2 * Math.PI/2, 0, 1, 0)).times(Mat4.scale(1.5,1.5,1.5)); // woman with child in hand
+        people6_transform = people6_transform.times(Mat4.translation(5, -4, -2)).times(Mat4.rotation(2 * Math.PI/2, 0, 1, 0)).times(Mat4.scale(1.5,1.5,1.5)); // woman with child in hand
         this.shapes.peo6.draw(context, program_state, people6_transform, shadow_pass? this.materials.peo_tex6: this.pure);
 
         let people7_transform = Mat4.identity();
-        people7_transform = people7_transform.times(Mat4.translation(18, -4.8, -2)).times(Mat4.rotation(4 * Math.PI/2, 0, 1, 0)).times(Mat4.scale(1.5,1.5,1.5));
+        people7_transform = people7_transform.times(Mat4.translation(28, -3.6, -2)).times(Mat4.rotation(4 * Math.PI/2, 0, 1, 0)).times(Mat4.scale(2,2,2));
         this.shapes.peo7.draw(context, program_state, people7_transform,shadow_pass? this.materials.peo_tex7: this.pure);
 
         let tower_transform = Mat4.identity();
@@ -507,21 +542,21 @@ export class spaceship_scene extends Scene {
         //draw couch
         let couch_model_transform = Mat4.identity();
         //move chair to designated location
-        couch_model_transform = couch_model_transform.times(Mat4.translation(-5, -3.75, 6)).times(Mat4.translation(10, 0, 3))
+        couch_model_transform = couch_model_transform.times(Mat4.translation(-6, -3.75, 9)).times(Mat4.translation(10, 0, 3))
             .times(Mat4.rotation(Math.PI*3/2,0, 1, 0));
         //couch lower cushion
-        let couch_lower_transform = couch_model_transform.times(Mat4.translation(-5, -3.75, 6)).times(Mat4.scale(6, 0.5, 1));
+        let couch_lower_transform = couch_model_transform.times(Mat4.translation(-6, -3.75, 9)).times(Mat4.scale(6, 0.5, 1));
         //couch top cushion
-        let couch_top_transform = couch_model_transform.times(Mat4.translation(-5, -3.75, 6)).times(Mat4.translation(0,0.75,0))
+        let couch_top_transform = couch_model_transform.times(Mat4.translation(-6, -3.75, 9)).times(Mat4.translation(0,0.75,0))
             .times(Mat4.scale(6, 0.25, 1));
         //couch back
-        let couch_back_transform = couch_model_transform.times(Mat4.translation(-5, -3.5, 6)).times(Mat4.translation(0,1,-1.5))
+        let couch_back_transform = couch_model_transform.times(Mat4.translation(-6, -3.5, 9)).times(Mat4.translation(0,1,-1.5))
             .times(Mat4.scale(6, 1.825, 0.5));
         //couch arm right
-        let couch_arm_1_transform = couch_model_transform.times(Mat4.translation(-5, -3.75, 6)).times(Mat4.translation(5.5,.75,0))
+        let couch_arm_1_transform = couch_model_transform.times(Mat4.translation(-6, -3.75, 9)).times(Mat4.translation(5.5,.75,0))
             .times(Mat4.scale(0.5, 1.3,1));
         //couch arm left
-        let couch_arm_2_transform = couch_model_transform.times(Mat4.translation(-5, -3.75, 6)).times(Mat4.translation(-5.5,.75,0))
+        let couch_arm_2_transform = couch_model_transform.times(Mat4.translation(-6, -3.75, 9)).times(Mat4.translation(-5.5,.75,0))
             .times(Mat4.scale(0.5, 1.3,1));
 
         this.shapes.cube.draw(context, program_state, couch_lower_transform, shadow_pass? this.materials.couch: this.pure); //this.shadow:this.materials.couch
@@ -532,10 +567,10 @@ export class spaceship_scene extends Scene {
 
         // draws the wall with window
         let window_model_transform = Mat4.identity();
-        let window1_model_transform = window_model_transform.times(Mat4.translation(10, -8, -15)).times(Mat4.scale(15, 2, 0.1))
-        let window2_model_transform = window_model_transform.times(Mat4.translation(10, 8, -15)).times(Mat4.scale(15, 2, 0.1))
-        let window3_model_transform = window_model_transform.times(Mat4.translation(-10, 0, -15)).times(Mat4.scale(5, 10, 0.1))
-        let window4_model_transform = window_model_transform.times(Mat4.translation(26, 0, -15)).times(Mat4.scale(3, 10, 0.1))
+        let window1_model_transform = window_model_transform.times(Mat4.translation(15, -8, -15)).times(Mat4.scale(15, 2, 0.1))
+        let window2_model_transform = window_model_transform.times(Mat4.translation(15, 8, -15)).times(Mat4.scale(15, 2, 0.1))
+        let window3_model_transform = window_model_transform.times(Mat4.translation(-6, 0, -15)).times(Mat4.scale(9, 10, 0.1))
+        let window4_model_transform = window_model_transform.times(Mat4.translation(29, 0, -15)).times(Mat4.scale(1, 10, 0.1))
         let window5_model_transform = window_model_transform.times(Mat4.translation(18.6, -2, 0)).times(Mat4.translation(19.1, -2.89, -15)).times(Mat4.scale(11, 11/ Math.sqrt(3),  0.1))
         let window6_model_transform = window_model_transform.times(Mat4.translation(18.6, 2, 0)).times(Mat4.translation(13.2, -1, -15)).times(Mat4.rotation(-Math.PI/2, 0, 0, 1)).times(Mat4.scale(11, 11 / Math.sqrt(3), 0.1))
 
@@ -549,13 +584,27 @@ export class spaceship_scene extends Scene {
         // draws the walls on the ends
         let wall_model_transform = Mat4.identity();
         let wall1_model_transform = wall_model_transform.times(Mat4.translation(37.6, 1, 0)).times(Mat4.rotation(Math.PI/2, 0, 1, 0)).times(Mat4.rotation(-Math.PI/4, 1, 0, 0)).times(Mat4.scale(15, 12.9, 0.1));
-
-        this.shapes.cube.draw(context, program_state, wall1_model_transform, shadow_pass? this.materials.wall2: this.pure);
-
         let wall2_model_transform = wall_model_transform.times(Mat4.translation(-15, 1, 0)).times(Mat4.rotation(Math.PI/2, 0, 1, 0)).times(Mat4.scale(15, 9, 0.1));
 
-        this.shapes.cube.draw(context, program_state, wall2_model_transform, shadow_pass? this.materials.wall2.override({color:color(153/255, 153/255, 153/255, 1)}): this.pure);
-
+        if (this.sun_texture){
+            this.shapes.cube.draw(context, program_state, wall1_model_transform, shadow_pass? this.materials.wall_sun: this.pure);
+            this.shapes.cube.draw(context, program_state, wall2_model_transform, shadow_pass? this.materials.wall_sun: this.pure);
+            // draws wall in middle
+            this.shapes.cube.draw(context, program_state, Mat4.translation(15, 1, 0).times(Mat4.scale(1, 1, 0.8)).times(wall2_model_transform), shadow_pass? this.materials.wall_sun: this.pure);
+        }
+        else if (this.saturn_texture){
+            this.shapes.cube.draw(context, program_state, wall1_model_transform, shadow_pass? this.materials.wall_saturn: this.pure);
+            this.shapes.cube.draw(context, program_state, wall2_model_transform, shadow_pass? this.materials.wall_saturn: this.pure);
+            // draws wall in middle
+            this.shapes.cube.draw(context, program_state, Mat4.translation(15, 1, 0).times(Mat4.scale(1, 1, 0.8)).times(wall2_model_transform), shadow_pass? this.materials.wall_saturn: this.pure);
+        }
+        else if (this.neptune_texture){
+            this.shapes.cube.draw(context, program_state, wall1_model_transform, shadow_pass? this.materials.wall_neptune: this.pure);
+            this.shapes.cube.draw(context, program_state, wall2_model_transform, shadow_pass? this.materials.wall_neptune: this.pure);
+            // draws wall in middle
+            this.shapes.cube.draw(context, program_state, Mat4.translation(15, 1, 0).times(Mat4.scale(1, 1, 0.8)).times(wall2_model_transform), shadow_pass? this.materials.wall_neptune: this.pure);
+        }
+        
         // draws the roof
         let roof_model_transform = Mat4.identity();
         roof_model_transform = roof_model_transform.times(Mat4.translation(6.8, 10, 0)).times(Mat4.rotation(Math.PI/2, 1, 0, 0)).times(Mat4.scale(22, 15.2, 0.1))
@@ -565,7 +614,7 @@ export class spaceship_scene extends Scene {
         // draws the floor
         let floor_model_transform = Mat4.identity();
         floor_model_transform = floor_model_transform.times(Mat4.translation(15.5, -8, 0)).times(Mat4.rotation(Math.PI/2, 1, 0, 0)).times(Mat4.scale(31, 15.2, 0.1))
-        this.shapes.cube.draw(context, program_state, floor_model_transform, shadow_pass? this.materials.wall.override({color:color(102/255, 102/255, 102/255, 1)}): this.pure);
+        this.shapes.cube.draw(context, program_state, floor_model_transform, shadow_pass? this.materials.wall.override({color:hex_color("#2e2e2e")}): this.pure);
 
         //draw the lamp
         let lamp_head_transform = Mat4.identity();
@@ -601,7 +650,7 @@ export class spaceship_scene extends Scene {
         let z_1 = ball_position_1[2]
 
         // collision detection for the walls
-        if (x_1 > 37 && this.d_x_1 === 1){
+        if (x_1 > -1 && this.d_x_1 === 1){
             this.d_x_1 = -1
         }
         else if (x_1 < -14 && this.d_x_1 === -1){
@@ -648,7 +697,7 @@ export class spaceship_scene extends Scene {
         let z_2 = ball_position_2[2]
 
         // collision detection for the walls
-        if (x_2 > 37 && this.d_x_2 === 1){
+        if (x_2 > -1 && this.d_x_2 === 1){
             this.d_x_2 = -1
         }
         else if (x_2 < -14 && this.d_x_2 === -1){
@@ -744,11 +793,17 @@ export class spaceship_scene extends Scene {
 
         //control panel
         let control_transform = Mat4.identity();
-        control_transform = control_transform.times(Mat4.translation(-14.5, -6, 0)).times(Mat4.rotation(Math.PI/2, 0, 1, 0)).times(Mat4.scale(15, 2, 5))
+        control_transform = control_transform.times(Mat4.translation(-12.5, -6.5, 0)).times(Mat4.rotation(Math.PI/2, 0, 1, 0)).times(Mat4.scale(15, 1.5, 2))
         // this.shapes.cube.draw(context, program_state, screen_transform, this.materials.loc1);
-        this.shapes.cube.draw(context, program_state, control_transform, shadow_pass? this.materials.wall.override({color:color(0, 0, 51/255, 1)}): this.pure);
-        this.shapes.cube.draw(context, program_state, Mat4.translation(9, -2, -16).times(Mat4.rotation(Math.PI / 2, 0, 1, 0)).times(Mat4.scale(0.2, 0.2, 0.6)).times(control_transform), shadow_pass? this.materials.wall.override({color:color(1, 1, 1, 1)}): this.pure);
-        this.shapes.cube.draw(context, program_state, Mat4.translation(9, 2.5, -16).times(Mat4.rotation(Math.PI / 2, 0, 1, 0)).times(Mat4.scale(0.1, 1.5, 0.03)).times(control_transform), shadow_pass? this.materials.wall.override({color:color(1, 1, 1, 1)}): this.pure);
+        this.shapes.cube.draw(context, program_state, control_transform, shadow_pass? this.materials.control: this.pure);
+        // keyboard
+        this.shapes.cube.draw(context, program_state, Mat4.translation(-8, -4.5, 5).times(Mat4.scale(1 / 3, 1 / 15, 1 / 5)).times(control_transform), shadow_pass? this.materials.control.override({color: color(1, 1, 1, 1)}): this.pure);
+        this.shapes.cube.draw(context, program_state, Mat4.translation(-8, -4.5, 1).times(Mat4.scale(1 / 3, 1 / 15, 1 / 25)).times(control_transform), shadow_pass? this.materials.control.override({color: color(1, 1, 1, 1)}): this.pure);
+        this.shapes.cube.draw(context, program_state, Mat4.translation(-8, -4.5, -0.5).times(Mat4.scale(1 / 3, 1 / 15, 1 / 25)).times(control_transform), shadow_pass? this.materials.control.override({color: color(1, 1, 1, 1)}): this.pure);
+
+        // draw desk by window
+        this.shapes.cube.draw(context, program_state, Mat4.translation(15, -2, -16).times(Mat4.rotation(Math.PI / 2, 0, 1, 0)).times(Mat4.scale(0.2, 0.2, 0.6)).times(control_transform), shadow_pass? this.materials.wall.override({color:color(1, 1, 1, 1)}): this.pure);
+        this.shapes.cube.draw(context, program_state, Mat4.translation(15, 5.35, -16).times(Mat4.rotation(Math.PI / 2, 0, 1, 0)).times(Mat4.scale(0.1, 1.7, 0.03)).times(control_transform), shadow_pass? this.materials.wall.override({color:color(1, 1, 1, 1)}): this.pure);
 
     }
 
