@@ -277,24 +277,11 @@ export class spaceship_scene extends Scene {
         // For the first pass
         this.pure = new Material(new Color_Phong_Shader(), {
         })
-        this.picture_texture = new Material(new defs.Fake_Bump_Map(1), {
-        })
+
         // For light source
         this.light_src = new Material(new Phong_Shader(), {
             color: color(1, 1, 1, 1), ambient: 1, diffusivity: 0, specular: 0
         });
-        // For depth texture display
-        this.depth_tex =  new Material(new Depth_Texture_Shader_2D(), {
-            color: color(0, 0, .0, 1),
-            ambient: 1, diffusivity: 0, specular: 0, texture: null
-        });
-
-        this.colors = [color(1, 1, 1, 1),color(1, 1, 204/255, 1),color(1, 1, 153/255, 1),color(1, 1, 102/255, 1),
-            color(1, 1, 51/255, 1),color(1, 1, 0, 1),color(1, 204/255, 153/255, 1),color(1, 204/255, 102/255, 1),
-            color(1, 204/255, 51/255),color(1, 204/255, 0, 1)];
-        this.lamp_colors = [color(1, 1, 1, 1),color(1, 1, 204/255, 1),color(1, 204/255, 153/255, 1),color(1, 204/255, 0, 1)];
-
-
 
         // To make sure texture initialization only does once
         this.init_ok = false;
@@ -328,16 +315,6 @@ export class spaceship_scene extends Scene {
     }
 
     make_control_panel() {
-        // // make_control_panel(): Sets up a panel of interactive HTML elements, including
-        // // buttons with key bindings for affecting this scene, and live info readouts.
-        // this.control_panel.innerHTML += "Dragonfly rotation angle: ";
-        // // The next line adds a live text readout of a data member of our Scene.
-        // this.live_string(box => {
-        //     box.textContent = (this.hover ? 0 : (this.t % (2 * Math.PI)).toFixed(2)) + " radians"
-        // });
-        // this.new_line();
-        // this.new_line();
-        // // Add buttons so the user can actively toggle data members of our Scene:
         this.key_triggered_button("Push the Plate", ["p"], function () {
             this.v_z_1 += .5
             this.v_y_1 += .1
@@ -451,10 +428,6 @@ export class spaceship_scene extends Scene {
     }
 
     render_scene(context, program_state, shadow_pass, draw_light_source=false, draw_shadow=false) {
-        // shadow_pass: true if this is the second pass that draw the shadow.
-        // draw_light_source: true if we want to draw the light source.
-        // draw_shadow: true if we want to draw the shadow
-        
         program_state.draw_shadow = draw_shadow;
 
         //draw chair
@@ -530,14 +503,6 @@ export class spaceship_scene extends Scene {
         let power_transform = Mat4.identity();
         power_transform = power_transform.times(Mat4.translation(28, -6, 8)).times(Mat4.scale(1,1,1));
         this.shapes.pow1.draw(context, program_state, power_transform, shadow_pass? this.materials.pow_tex1: this.pure);
-
-
-        // this.shapes.cube.draw(context, program_state, leg_transform_1, shadow_pass? this.materials.wood: this.materials.wood_texture);
-        // this.shapes.cube.draw(context, program_state, leg_transform_2, shadow_pass? this.materials.wood: this.materials.wood_texture); //this.shadow:this.materials.wood
-        // this.shapes.cube.draw(context, program_state, leg_transform_3, shadow_pass? this.materials.wood: this.materials.wood_texture);
-        // this.shapes.cube.draw(context, program_state, leg_transform_4, shadow_pass? this.materials.wood: this.materials.wood_texture);
-        // this.shapes.cube.draw(context, program_state, seat_transform, shadow_pass? this.materials.wood: this.materials.wood_texture);
-        // this.shapes.cube.draw(context, program_state, back_transform, shadow_pass? this.materials.wood: this.materials.wood_texture);
 
         //draw couch
         let couch_model_transform = Mat4.identity();
@@ -618,30 +583,16 @@ export class spaceship_scene extends Scene {
 
         //draw the lamp
         let lamp_head_transform = Mat4.identity();
-        // let lamp_main_transform = Mat4.identity();
 
         lamp_head_transform = lamp_head_transform.times(Mat4.translation(-8, 9, 0)).times(Mat4.rotation(Math.PI/2, 1, 0, 0)).times(Mat4.scale(2, 10, 0.1));
-        //let lamp_head_inner_transform =  lamp_head_transform.times(Mat4.scale(1.5, 1.5, 0.1))
-        // lamp_main_transform =  lamp_main_transform.times(Mat4.translation(-5, -5, 0)).times(Mat4.rotation(Math.PI/2, 1, 0, 0)).times(Mat4.scale(0.2, 0.2, 4));
 
         let t = program_state.animation_time / 1000.0, dt = program_state.animation_delta_time / 1000;
-        let choice = Math.floor(t * 1000 % 4);
-        //this.shapes.lamp.draw(context, program_state, lamp_head_transform, shadow_pass? this.materials.lamp_head.override({color: this.colors[choice]}): this.pure);
         this.shapes.cube.draw(context, program_state, lamp_head_transform, shadow_pass? this.materials.lamp_head.override({color: color(1, 1, 1, 1)}): this.pure);
         this.shapes.cube.draw(context, program_state, Mat4.translation(15, 0, 0).times(lamp_head_transform), shadow_pass? this.materials.lamp_head.override({color: color(1, 1, 1, 1)}): this.pure);
         this.shapes.cube.draw(context, program_state, Mat4.translation(30, 0, 0).times(lamp_head_transform), shadow_pass? this.materials.lamp_head.override({color: color(1, 1, 1, 1)}): this.pure);
-        //this.shapes.cube.draw(context, program_state, lamp_main_transform, shadow_pass? this.materials.lamp_main.override({color:color(204/255, 153/255, 102/255, 1)}): this.pure);
 
         let ball_transform_1 = this.last_transform_1
-        // window.alert(ball1_transform)
-        // ball1_transform =  ball1_transform.times(Mat4.translation(3, 0, 0)).times(Mat4.rotation(t , 0, 1, 0))
-        //     .times(Mat4.translation(2, 0, 0))
-        //     .times(Mat4.rotation(t  , 0, 1, 0))
-        //     .times(Mat4.translation(0, -1, 0))
-        //     .times(Mat4.rotation(t , 1, 0, 0))
-        //     .times(Mat4.translation(0, 1, 0))
-        //     .times(Mat4.rotation(t , 0, 1, 0));
-        // window.alert(dt)
+
         let ball_position_1 = vec4(0, 0, 0, 1)
 
         ball_position_1 = ball_transform_1.times(ball_position_1)
@@ -676,19 +627,10 @@ export class spaceship_scene extends Scene {
         if (y_1 < -3 && x_1 > -14 && x_1 < -9 && this.d_x_1 === -1){
             this.d_x_1 = 1
         }
-    
-        // this.shapes.ball_2.draw(context, program_state, ball_transform_1_new, shadow_pass? this.materials.lamp_main.override({color:color(204/255, 1, 1, 1)}): this.pure);
+
 
         let ball_transform_2 = this.last_transform_2
-        // window.alert(ball1_transform)
-        // ball1_transform =  ball1_transform.times(Mat4.translation(3, 0, 0)).times(Mat4.rotation(t , 0, 1, 0))
-        //     .times(Mat4.translation(2, 0, 0))
-        //     .times(Mat4.rotation(t  , 0, 1, 0))
-        //     .times(Mat4.translation(0, -1, 0))
-        //     .times(Mat4.rotation(t , 1, 0, 0))
-        //     .times(Mat4.translation(0, 1, 0))
-        //     .times(Mat4.rotation(t , 0, 1, 0));
-        // window.alert(dt)
+
         let ball_position_2 = vec4(0, 0, 0, 1)
 
         ball_position_2 = ball_transform_2.times(ball_position_2)
@@ -754,21 +696,12 @@ export class spaceship_scene extends Scene {
 
         ball_transform_1 = ball_transform_1.times(Mat4.translation(this.v_x_1 * this.d_x_1 / 50, this.v_y_1 * this.d_y_1 / 50, this.v_z_1 * this.d_z_1 / 50 ))
         let ball_transform_1_new = ball_transform_1.times(Mat4.rotation(t, 1, 1, 0)).times(Mat4.rotation(t, 0, 0, 1));
-            // .times(Mat4.translation(0, 1, 0))
-            // .times(Mat4.rotation(this.d_y, 0, 1, 0))
-            // .times(Mat4.translation(0, 0, 1))
-            // .times(Mat4.rotation(t, 0, 1, 0));
 
         this.last_transform_1 = ball_transform_1
         this.shapes.ball_1.draw(context, program_state, ball_transform_1_new, shadow_pass? this.materials.lamp_main.override({color:color(204/255, 1, 1, 1)}): this.pure);
 
-
         ball_transform_2 = ball_transform_2.times(Mat4.translation(this.v_x_2 * this.d_x_2 / 50, this.v_y_2 * this.d_y_2 / 50, this.v_z_2 * this.d_z_2 / 50))
         let ball_transform_2_new = ball_transform_2.times(Mat4.rotation(t, 1, 0, 0)).times(Mat4.rotation(t, 0, 1, 1));
-            // .times(Mat4.translation(0, 1, 0))
-            // .times(Mat4.rotation(this.d_y, 0, 1, 0))
-            // .times(Mat4.translation(0, 0, 1))
-            // .times(Mat4.rotation(t, 0, 1, 0));
 
         this.last_transform_2 = ball_transform_2
         this.shapes.ball_2.draw(context, program_state, ball_transform_2_new, shadow_pass? this.materials.lamp_main.override({color:color(204/255, 1, 1, 1)}): this.pure);
@@ -777,10 +710,7 @@ export class spaceship_scene extends Scene {
         //draw the screen
         let screen_transform = Mat4.identity();
         screen_transform = screen_transform.times(Mat4.translation(-14.5, 1, 2)).times(Mat4.rotation(Math.PI/2, 0, 1, 0)).times(Mat4.scale(8, 5, 0.1))
-        //
-        // let strings = ["This is some text"];
-        // this.shapes.text.set_string(strings[0], context.context);
-        // this.shapes.text.draw(context, program_state,screen_transform , this.text_image);
+
         let r = Math.floor(t * 1000 % 4);
         if (r == 0)
             this.shapes.cube.draw(context, program_state, screen_transform, this.materials.screen_texture1);
@@ -794,7 +724,6 @@ export class spaceship_scene extends Scene {
         //control panel
         let control_transform = Mat4.identity();
         control_transform = control_transform.times(Mat4.translation(-12.5, -6.5, 0)).times(Mat4.rotation(Math.PI/2, 0, 1, 0)).times(Mat4.scale(15, 1.5, 2))
-        // this.shapes.cube.draw(context, program_state, screen_transform, this.materials.loc1);
         this.shapes.cube.draw(context, program_state, control_transform, shadow_pass? this.materials.control: this.pure);
         // keyboard
         this.shapes.cube.draw(context, program_state, Mat4.translation(-8, -4.5, 5).times(Mat4.scale(1 / 3, 1 / 15, 1 / 5)).times(control_transform), shadow_pass? this.materials.control.override({color: color(1, 1, 1, 1)}): this.pure);
@@ -869,10 +798,4 @@ export class spaceship_scene extends Scene {
         this.render_scene(context, program_state, true,true, true);
 
     }
-
-    // show_explanation(document_element) {
-    //     document_element.innerHTML += "<p>This demo loads an external 3D model file of a teapot.  It uses a condensed version of the \"webgl-obj-loader.js\" "
-    //         + "open source library, though this version is not guaranteed to be complete and may not handle some .OBJ files.  It is contained in the class \"Shape_From_File\". "
-    //         + "</p><p>One of these teapots is lit with bump mapping.  Can you tell which one?</p>";
-    // }
 }

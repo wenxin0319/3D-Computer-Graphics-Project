@@ -1,102 +1,8 @@
 import {defs, tiny} from './examples/common.js';
-// Pull these names into this module's scope for convenience:
-const {vec3, vec4, vec, color, hex_color, Matrix, Mat4, Light, Shape, Material, Shader, Texture, Scene} = tiny;
-const {Cube, Axis_Arrows, Textured_Phong, Phong_Shader, Basic_Shader, Subdivision_Sphere} = defs
 
-import {Color_Phong_Shader, Shadow_Textured_Phong_Shader,
-    Depth_Texture_Shader_2D, Buffered_Texture, LIGHT_DEPTH_TEX_SIZE} from './examples/shadow-demo-shaders.js'
-
-export class Shape_From_File extends Shape
-{                                   // **Shape_From_File** is a versatile standalone Shape that imports
-                                    // all its arrays' data from an .obj 3D model file.
-    constructor( filename )
-    { super( "position", "normal", "texture_coord" );
-        // Begin downloading the mesh. Once that completes, return
-        // control to our parse_into_mesh function.
-        this.load_file( filename );
-    }
-    load_file( filename )
-    {                             // Request the external file and wait for it to load.
-        // Failure mode:  Loads an empty shape.
-        return fetch( filename )
-            .then( response =>
-            { if ( response.ok )  return Promise.resolve( response.text() )
-            else                return Promise.reject ( response.status )
-            })
-            .then( obj_file_contents => this.parse_into_mesh( obj_file_contents ) )
-            .catch( error => { this.copy_onto_graphics_card( this.gl ); } )
-    }
-    parse_into_mesh( data )
-    {                           // Adapted from the "webgl-obj-loader.js" library found online:
-        var verts = [], vertNormals = [], textures = [], unpacked = {};
-
-        unpacked.verts = [];        unpacked.norms = [];    unpacked.textures = [];
-        unpacked.hashindices = {};  unpacked.indices = [];  unpacked.index = 0;
-
-        var lines = data.split('\n');
-
-        var VERTEX_RE = /^v\s/;    var NORMAL_RE = /^vn\s/;    var TEXTURE_RE = /^vt\s/;
-        var FACE_RE = /^f\s/;      var WHITESPACE_RE = /\s+/;
-
-        for (var i = 0; i < lines.length; i++) {
-            var line = lines[i].trim();
-            var elements = line.split(WHITESPACE_RE);
-            elements.shift();
-
-            if      (VERTEX_RE.test(line))   verts.push.apply(verts, elements);
-            else if (NORMAL_RE.test(line))   vertNormals.push.apply(vertNormals, elements);
-            else if (TEXTURE_RE.test(line))  textures.push.apply(textures, elements);
-            else if (FACE_RE.test(line)) {
-                var quad = false;
-                for (var j = 0, eleLen = elements.length; j < eleLen; j++)
-                {
-                    if(j === 3 && !quad) {  j = 2;  quad = true;  }
-                    if(elements[j] in unpacked.hashindices)
-                        unpacked.indices.push(unpacked.hashindices[elements[j]]);
-                    else
-                    {
-                        var vertex = elements[ j ].split( '/' );
-
-                        unpacked.verts.push(+verts[(vertex[0] - 1) * 3 + 0]);
-                        unpacked.verts.push(+verts[(vertex[0] - 1) * 3 + 1]);
-                        unpacked.verts.push(+verts[(vertex[0] - 1) * 3 + 2]);
-
-                        if (textures.length)
-                        {   unpacked.textures.push(+textures[( (vertex[1] - 1)||vertex[0]) * 2 + 0]);
-                            unpacked.textures.push(+textures[( (vertex[1] - 1)||vertex[0]) * 2 + 1]);  }
-
-                        unpacked.norms.push(+vertNormals[( (vertex[2] - 1)||vertex[0]) * 3 + 0]);
-                        unpacked.norms.push(+vertNormals[( (vertex[2] - 1)||vertex[0]) * 3 + 1]);
-                        unpacked.norms.push(+vertNormals[( (vertex[2] - 1)||vertex[0]) * 3 + 2]);
-
-                        unpacked.hashindices[elements[j]] = unpacked.index;
-                        unpacked.indices.push(unpacked.index);
-                        unpacked.index += 1;
-                    }
-                    if(j === 3 && quad)   unpacked.indices.push( unpacked.hashindices[elements[0]]);
-                }
-            }
-        }
-        {
-            const { verts, norms, textures } = unpacked;
-            for( var j = 0; j < verts.length/3; j++ )
-            {
-                this.arrays.position     .push( vec3( verts[ 3*j ], verts[ 3*j + 1 ], verts[ 3*j + 2 ] ) );
-                this.arrays.normal       .push( vec3( norms[ 3*j ], norms[ 3*j + 1 ], norms[ 3*j + 2 ] ) );
-                this.arrays.texture_coord.push( vec( textures[ 2*j ], textures[ 2*j + 1 ] ) );
-            }
-            this.indices = unpacked.indices;
-        }
-        this.normalize_positions( false );
-        this.ready = true;
-    }
-    draw( context, program_state, model_transform, material )
-    {               // draw(): Same as always for shapes, but cancel all
-        // attempts to draw the shape before it loads:
-        if( this.ready )
-            super.draw( context, program_state, model_transform, material );
-    }
-}
+const {
+    Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
+} = tiny;
 
 export class space_scene extends Scene {
     constructor() {
@@ -105,29 +11,15 @@ export class space_scene extends Scene {
 
         this.change = false;
         this.add = false;
-        this.sun_add = false;
 
         // At the beginning of our program, load one of each of these shape definitions onto the GPU.
         this.shapes = {
-            torus: new defs.Torus(15, 15),
-            torus2: new defs.Torus(3, 15),
-            sphere: new defs.Subdivision_Sphere(4),
-            circle: new defs.Regular_2D_Polygon(1, 15),
             moon: new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(1),
             sun : new defs.Subdivision_Sphere(4),
             sphere_1: new defs.Subdivision_Sphere(1),
             sphere_2: new defs.Subdivision_Sphere(2),
             sphere_3: new defs.Subdivision_Sphere(3),
             sphere_4: new defs.Subdivision_Sphere(4),
-            flat_sphere_1: new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(1),
-            flat_sphere_2: new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(2),
-            flat_sphere_3: new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(3),
-            flat_sphere_4: new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(4),
-            astronaut: new Shape_From_File("assets/astronaut.obj"),
-            bs: new Shape_From_File("assets/bs.obj"),
-            fly: new Shape_From_File("assets/fly.obj"),
-            land: new Shape_From_File("assets/land.obj"),
-            rocket: new Shape_From_File("assets/rocket.obj"),
         };
 
         // *** Materials
@@ -136,53 +28,8 @@ export class space_scene extends Scene {
                 {ambient: .6, diffusivity: .6, color: hex_color("#ffffff")}),
             test2: new Material(new Gouraud_Shader(),
                 {ambient: .6, diffusivity: .6, color: hex_color("#992828")}),
-            ring: new Material(new Ring_Shader()),
             sun: new Material(new defs.Phong_Shader(),
                 {ambient: 1, diffusivity: .6, color: hex_color("#ffffff")}),
-            planet_1: new Material(new defs.Phong_Shader(),
-                {ambient: 0, diffusivity: .6, color: hex_color("#808080")}),
-            planet_2_1: new Material(new defs.Phong_Shader(),
-                {ambient: 0, diffusivity: .1, specular: 1, color: hex_color("#80FFFF")}),
-            planet_2_2: new Material(new Gouraud_Shader(),
-                {ambient: 0, diffusivity: .1, specular: 1, color: hex_color("#80FFFF")}),
-            planet_3: new Material(new defs.Phong_Shader(),
-                {ambient: 0, diffusivity: 1, specular: 1, color: hex_color("#B08040")}),
-            planet_3_ring: new Material(new Ring_Shader(),
-                {ambient: 0.6, color:hex_color("#B08040")}),
-            planet_4: new Material(new defs.Phong_Shader(),
-                {ambient: 0, specular: 1, color: hex_color("#93CAED")}),
-            planet_4_moon: new Material(new defs.Phong_Shader(),
-                {ambient: 0, color: hex_color("#A865C9")}),
-            astronaut: new Material(new Shadow_Textured_Phong_Shader(1), {
-                color: color(.5, .5, .5, 1),
-                ambient: .4, diffusivity: .5, specular: .5,
-                color_texture: new Texture("assets/astronaut.jpg"),
-                light_depth_texture: null
-            }),
-            bs: new Material(new Shadow_Textured_Phong_Shader(1), {
-                color: color(.5, .5, .5, 1),
-                ambient: .4, diffusivity: .5, specular: .5,
-                color_texture: new Texture("assets/bs.jpg"),
-                light_depth_texture: null
-            }),
-            fly: new Material(new Shadow_Textured_Phong_Shader(1), {
-                color: color(.5, .5, .5, 1),
-                ambient: .4, diffusivity: .5, specular: .5,
-                color_texture: new Texture("assets/fly.jpg"),
-                light_depth_texture: null
-            }),
-            land: new Material(new Shadow_Textured_Phong_Shader(1), {
-                color: color(.5, .5, .5, 1),
-                ambient: .4, diffusivity: .5, specular: .5,
-                color_texture: new Texture("assets/land.jpg"),
-                light_depth_texture: null
-            }),
-            rocket: new Material(new Shadow_Textured_Phong_Shader(1), {
-                color: color(.5, .5, .5, 1),
-                ambient: .4, diffusivity: .5, specular: .5,
-                color_texture: new Texture("assets/rocket.jpg"),
-                light_depth_texture: null
-            }),
         }
         this.color = ["#808080", "#80FFFF", "#B08040", "#93CAED",
             "#A865C9", "#98fb98", "#ffffe0", "#FFD580",
@@ -196,8 +43,6 @@ export class space_scene extends Scene {
     }
 
     display(context, program_state) {
-        // display():  Called once per frame of animation.
-        // Setup -- This part sets up the scene's overall camera matrix, projection matrix, and lights:
         if (!context.scratchpad.controls) {
             this.children.push(context.scratchpad.controls = new defs.Movement_Controls());
             // Define the global camera and projection matrices, which are stored in program_state.
@@ -205,18 +50,14 @@ export class space_scene extends Scene {
         }
 
         const light_position = vec4(0, 5, 5, 1);
-        // The parameters of the Light are: position, color, size
         program_state.lights = [new Light(light_position, color(1, 1, 1, 1), 1000)];
 
         const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
-
-        let model_transform = Mat4.identity();
 
         // set the values of random generalized galaxy
         let galaxy_transform = Mat4.identity();
         const temp_random = Math.random();
         let num_planets = 5;
-        
 
         if (Math.floor(t) % 10 === 0){
             this.change = true;
@@ -231,8 +72,6 @@ export class space_scene extends Scene {
             this.random = this.new_random
         } else {
             this.change = false;
-            // sun_current_color = hex_color(this.sun_color[Math.floor(Math.random()*3)]);
-            // num_planets = Math.floor(Math.random()*5)+2;
         }
 
         //movement of spaceship - implement as movement of galaxy
@@ -254,7 +93,6 @@ export class space_scene extends Scene {
         // 10**n where n is the current sun radius
         let sun_light = new Light(galaxy_transform.times(vec4(0, 0, 0, 1)), this.sun_current_color, 10**sun_radius);
         program_state.lights = [sun_light];
-
 
         //changed test to sun material
         this.shapes.sun.draw(context,program_state, sun_model_transform,
@@ -288,7 +126,6 @@ export class space_scene extends Scene {
                     .times(Mat4.translation(5 + i * 3, 0, 0));
                 rotation_speed = rotation_speed - speed_delta;
 
-                //i, i % 2, hex_color(this.color[i])
                 const rand_sphere = Math.floor(random_value * 4) + 1;
                 const rand_texture = Math.floor(random_value * 2);
                 const rand_color = hex_color(this.color[Math.round(random_value * this.color.length)]);
@@ -323,8 +160,6 @@ export class space_scene extends Scene {
             current_ball[i].draw(context, program_state, current_planets[i],
                 current_shading[i].override({color: current_color[i]}));
         }
-
-        //this.shapes.torus.draw(context, program_state, model_transform, this.materials.test.override({color: yellow}));
     }
 }
 
@@ -483,50 +318,3 @@ class Gouraud_Shader extends Shader {
         this.send_gpu_state(context, gpu_addresses, gpu_state, model_transform);
     }
 }
-
-class Ring_Shader extends Shader {
-    update_GPU(context, gpu_addresses, graphics_state, model_transform, material) {
-        // update_GPU():  Defining how to synchronize our JavaScript's variables to the GPU's:
-        const [P, C, M] = [graphics_state.projection_transform, graphics_state.camera_inverse, model_transform],
-            PCM = P.times(C).times(M);
-        context.uniformMatrix4fv(gpu_addresses.model_transform, false, Matrix.flatten_2D_to_1D(model_transform.transposed()));
-        context.uniformMatrix4fv(gpu_addresses.projection_camera_model_transform, false,
-            Matrix.flatten_2D_to_1D(PCM.transposed()));
-    }
-
-    shared_glsl_code() {
-        // ********* SHARED CODE, INCLUDED IN BOTH SHADERS *********
-        return `
-        precision mediump float;
-        varying vec4 point_position;
-        varying vec4 center;
-        `;
-    }
-
-    vertex_glsl_code() {
-        // ********* VERTEX SHADER *********
-        // TODO:  Complete the main function of the vertex shader (Extra Credit Part II).
-        return this.shared_glsl_code() + `
-        attribute vec3 position;
-        uniform mat4 model_transform;
-        uniform mat4 projection_camera_model_transform;
-        
-        void main(){
-            center = vec4(0.0, 0.0, 0.0, 1.0);
-            point_position = vec4(position, 1.0);
-            gl_Position = projection_camera_model_transform * vec4(position, 1.0);
-        }`;
-    }
-
-    fragment_glsl_code() {
-        // ********* FRAGMENT SHADER *********
-        // TODO:  Complete the main function of the fragment shader (Extra Credit Part II).
-        return this.shared_glsl_code() + `
-        void main(){
-            //all numbers have to be in float form
-            float factor = 0.5 + 0.5 * sin(70.00*distance(point_position.xyz, center.xyz));
-            gl_FragColor = factor * vec4(0.69, 0.50, 0.25, 1.0);
-        }`;
-    }
-}
-
